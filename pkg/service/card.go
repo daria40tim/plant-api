@@ -2,7 +2,7 @@ package service
 
 import (
 	plantapi "github.com/daria40tim/plant-api"
-	"github.com/daria40tim/plant-api/repository"
+	"github.com/daria40tim/plant-api/pkg/repository"
 )
 
 type CardService struct {
@@ -25,6 +25,6 @@ func (s *CardService) UpdateById(c_id int) (int, error) {
 	return s.repo.UpdateById(c_id)
 }
 
-func (s *CardService) Create(plantapi.Card) (int, error) {
-	return s.repo.Create(plantapi.Card)
+func (s *CardService) Create(card plantapi.Card) (int, error) {
+	return s.repo.Create(card)
 }

@@ -2,7 +2,7 @@ package service
 
 import (
 	plantapi "github.com/daria40tim/plant-api"
-	"github.com/daria40tim/plant-api/repository"
+	"github.com/daria40tim/plant-api/pkg/repository"
 )
 
 type NomService struct {
@@ -25,6 +25,6 @@ func (s *NomService) UpdateById(c_id int) (int, error) {
 	return s.repo.UpdateById(c_id)
 }
 
-func (s *NomService) Create(plantapi.Nom) (int, error) {
-	return s.repo.Create(plantapi.Nom)
+func (s *NomService) Create(nom plantapi.Nom) (int, error) {
+	return s.repo.Create(nom)
 }

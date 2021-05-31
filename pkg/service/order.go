@@ -2,7 +2,7 @@ package service
 
 import (
 	plantapi "github.com/daria40tim/plant-api"
-	"github.com/daria40tim/plant-api/repository"
+	"github.com/daria40tim/plant-api/pkg/repository"
 )
 
 type OrderService struct {
@@ -25,6 +25,6 @@ func (s *OrderService) UpdateById(c_id int) (int, error) {
 	return s.repo.UpdateById(c_id)
 }
 
-func (s *OrderService) Create(plantapi.Order) (int, error) {
-	return s.repo.Create(plantapi.Order)
+func (s *OrderService) Create(order plantapi.Order) (int, error) {
+	return s.repo.Create(order)
 }

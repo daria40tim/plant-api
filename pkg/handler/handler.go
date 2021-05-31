@@ -3,7 +3,7 @@ package handler
 import (
 	"time"
 
-	"github.com/daria40tim/plant-api/service"
+	"github.com/daria40tim/plant-api/pkg/service"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -34,7 +34,7 @@ func NewHandler(services *service.Service) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
-	//router.Use(cors.Default())
+	router.Use(cors.Default())
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
@@ -48,10 +48,15 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		MaxAge: 120 * time.Hour,
 	}))
 
-	//router.Use(CORSM())
+	router.Use(CORSM())
 
 	api := router.Group("/api")
 	{
+		ocr := api.Group("/ocr")
+		{
+			ocr.GET("/dirs", h.getDirs)
+			ocr.POST("/img", h.getImg)
+		}
 		cards := api.Group("/cards")
 		{
 			cards.POST("/", h.createCard)

@@ -2,15 +2,35 @@ package main
 
 import (
 	"os"
+	"time"
 
 	plantapi "github.com/daria40tim/plant-api"
-	"github.com/daria40tim/plant-api/handler"
-	"github.com/daria40tim/plant-api/repository"
-	"github.com/daria40tim/plant-api/service"
+	"github.com/daria40tim/plant-api/pkg/handler"
+	"github.com/daria40tim/plant-api/pkg/repository"
+	"github.com/daria40tim/plant-api/pkg/service"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
+
+func CORS() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, HEAD, PATCH")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
 
 func main() {
 
@@ -25,12 +45,12 @@ func main() {
 	}
 
 	db, err := repository.NewPostgresDB(repository.Config{
-		Host:     "localhost",
-		Port:     "5432",
-		Username: "postgres",
+		Host:     viper.GetString("host"),
+		Port:     viper.GetString("db_port"),
+		Username: viper.GetString("username"),
 		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   "postgres",
-		SSLMode:  "disable",
+		DBName:   viper.GetString("dbname"),
+		SSLMode:  viper.GetString("sslmode"),
 	})
 
 	if err != nil {
@@ -44,7 +64,7 @@ func main() {
 	router := handlers.InitRoutes()
 
 	router.Use(CORS())
-	/*router.Use(cors.New(cors.Config{
+	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"PUT", "PATCH"},
 		AllowHeaders:     []string{"*"},
@@ -53,8 +73,8 @@ func main() {
 		AllowOriginFunc: func(origin string) bool {
 			return origin == "https://github.com"
 		},
-		MaxAge: 12 * time.Hour,
-	}))*/
+		MaxAge: 100 * time.Hour,
+	}))
 
 	srv := new(plantapi.Server)
 	if err := srv.Run(viper.GetString("port"), router); err != nil {
