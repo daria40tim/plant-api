@@ -13,7 +13,7 @@ func NewCardService(repo repository.Card) *CardService {
 	return &CardService{repo: repo}
 }
 
-func (s *CardService) GetAll() ([]plantapi.Card, error) {
+func (s *CardService) GetAll() ([]plantapi.CardAll, error) {
 	return s.repo.GetAll()
 }
 

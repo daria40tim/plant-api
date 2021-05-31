@@ -15,9 +15,19 @@ func NewCardPostgres(db *sqlx.DB) *CardPostgres {
 	return &CardPostgres{db: db}
 }
 
-func (r *CardPostgres) GetAll() ([]plantapi.Card, error) {
+func (r *CardPostgres) GetAll() ([]plantapi.CardAll, error) {
+	var res []plantapi.CardAll
 
-	return nil, nil
+	query := `SELECT c_id, power, pr_v, sec_v, shield, date, bid, tested, dir, info, conn_type, coil_num, name as type, file, case mes when true then 'кВа' else 'кВт' end as mes
+	FROM public."Cards"
+	left join public."Types" on type = t_id`
+
+	err := r.db.Select(&res, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 func (r *CardPostgres) GetById(c_id int) (plantapi.Card, error) {
@@ -32,14 +42,15 @@ func (r *CardPostgres) UpdateById(c_id int) (int, error) {
 
 func (r *CardPostgres) Create(input plantapi.Card) (int, error) {
 
+	var c_id int
 	var id int
 
 	query := `INSERT INTO public."Cards"(
-		c_id, power, pr_v, sec_v, shield, date, author, bid, tested, pic, dir, info, conn_type, coil_num, type, file) VALUES (default, 
-			  $1,    $2,   $3,    $4,     $5,   $6,     $7,  $8,     $9,  $10,  $11, $12,       $13,       $14, $15) returning c_id`
+		c_id, power, pr_v, sec_v, shield, date, author, bid, tested,  dir, info, conn_type, coil_num, type, file, mes) VALUES (default, 
+			  $1,    $2,   $3,    $4,     $5,   $6,     $7,  $8,      $9,  $10, $11,       $12,       $13, $14, $15) returning c_id`
 
-	row := r.db.QueryRow(query, input.Power, input.Pr_v, input.Sec_v, input.Shield, input.Date, input.Author, input.Bid, input.Tested, input.Pic, input.Dir, input.Info, input.Conn_type, input.Coil_num, input.Type, input.File)
-	if err := row.Scan(&id); err != nil {
+	row := r.db.QueryRow(query, input.Power, input.Pr_v, input.Sec_v, input.Shield, input.Date, input.Author, input.Bid, input.Tested, input.Dir, input.Info, input.Conn_type, input.Coil_num, input.Type, input.File, input.Mes)
+	if err := row.Scan(&c_id); err != nil {
 		return 0, err
 	}
 
@@ -55,5 +66,14 @@ func (r *CardPostgres) Create(input plantapi.Card) (int, error) {
 		return 0, err
 	}
 
-	return id, nil
+	query = `INSERT INTO public."Pics"(
+		pic_id, pic, c_id)
+		VALUES (default, $1, $2) returning pic_id`
+
+	row = r.db.QueryRow(query, input.Pic, c_id)
+	if err := row.Scan(&id); err != nil {
+		return 0, err
+	}
+
+	return c_id, nil
 }

@@ -6,7 +6,7 @@ import (
 )
 
 type Card interface {
-	GetAll() ([]plantapi.Card, error)
+	GetAll() ([]plantapi.CardAll, error)
 	GetById(c_id int) (plantapi.Card, error)
 	UpdateById(c_id int) (int, error)
 	Create(plantapi.Card) (int, error)

@@ -25,7 +25,20 @@ func (h *Handler) createCard(c *gin.Context) {
 
 }
 
+type getAllCardsResponse struct {
+	Data []plantapi.CardAll `json:"data"`
+}
+
 func (h *Handler) getAllCards(c *gin.Context) {
+	cards, err := h.services.Card.GetAll()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, getAllCardsResponse{
+		Data: cards,
+	})
 
 }
 
